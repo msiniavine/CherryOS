@@ -1,0 +1,45 @@
+CherryOS 
+
+What is CherryOS?
+--------------------
+CherryOS is a very simple operating system written to gain 
+better understanding of how modern full featured operating systems work.
+
+CherryOS is distributed under General Public License v3. Full license text can
+be found at: http://www.gnu.org/licenses/gpl-3.0.txt.
+
+
+On what hardware does it run?
+--------------------
+CherryOS runs on a VMware virtual machine that supports IA-32 architecture.
+There is a chance that it might run on a real 32-bit machine.
+
+
+How to compile it?
+--------------------
+Just type:
+     make
+
+CherryOS does not have any configuration options, right now.
+You will need a version of the gcc compiler, linker and assembler that can generate
+an ELF executable for x86 architecture. Standard gcc and binutils that come with
+most 32-bit Linux distributions should work. When changing the make file to tweak compiler
+options take care not to pull any dependencies from development environment.
+
+
+How do I run it?
+--------------------
+After compiling copy the resulting "cherryos" executable into your /boot directory and
+add a GRUB2 menu entry for it:
+    menuentry 'CherryOS' {
+    	      insmod ext2
+    	      set root='(hd0,1)'
+    	      multiboot /boot/cherryos
+    }
+
+Then reboot your system and pick the CherryOS entry in the GRUB menu.
+
+CherryOS uses multiboot specification so relies on a bootloader like GRUB, to
+setup the environment and load the kernel into RAM. Anyother multiboot supporting 
+bootloader should work just fine. It is recommended to use a virtual
+machine to run CherryOS just in case there are some bugs that might damage real hardware.

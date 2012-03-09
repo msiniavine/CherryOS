@@ -1,14 +1,6 @@
-#define NULL 0
+#include <types.h>
+#include <string.h>
 
-typedef int size_t;
-typedef unsigned short u16;
-
-size_t strlen(const char* str)
-{
-	size_t len = 0;
-	for(len = 0; str[len] != NULL; len++);
-	return len;
-}
 
 size_t printk(const char* str)
 {

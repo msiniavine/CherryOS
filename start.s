@@ -18,6 +18,20 @@
 start:
 
 	mov $(stack + STACKSIZE), %esp
+
+	call set_up_gdt
+
+	lgdt gdtr
+	mov $0x10, %eax
+	mov %eax, %ds
+	mov %eax, %es
+	mov %eax, %fs
+	mov %eax, %gs
+	mov %eax, %ss
+	ljmp $(0x8), $cs_set
+	nop
+cs_set:	
+	
 	push %eax
 	push %ebp
 

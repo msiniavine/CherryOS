@@ -19,11 +19,25 @@ struct desc_entry
 	u16 limit1: 4, avl: 1, l: 1, db: 1, g: 1, base2: 8;
 } __attribute__((packed));
 
-
 // Constants for different descriptor types
 // we only need two types, one for code, one for data
 #define GDT_DATA_TYPE 2
 #define GDT_CODE_TYPE 10
+
+
+// entry into interrupt descriptor table
+struct igate_desc
+{
+	u16 offset0;
+	u16 selector;
+	u8 reserved;
+	u8 type: 5, dpl: 2, p: 1;
+	u16 offset1;
+	
+} __attribute__((packed));
+
+#define IGATE_INT_TYPE 0xe0
+#define IGATE_TRAP_TYPE 0x78
 
 static void fill_gdt_entry(struct desc_entry* entry, u32 base, u32 limit, unsigned type)
 {
@@ -48,6 +62,8 @@ static void fill_gdt_entry(struct desc_entry* entry, u32 base, u32 limit, unsign
 }
 
 struct system_table_register gdtr;
+struct system_table_register idtr;
+static struct igate_desc idt[256];
 static struct desc_entry gdt[3];
 
 // fill in the gdtr and gdt tables
@@ -62,4 +78,12 @@ void set_up_gdt()
 	gdtr.address = (u32)&gdt[0];
 	gdtr.limit = sizeof(gdt)-1;
 	
+}
+
+// fill in the interrupt descriptor tables
+void set_up_idt()
+{
+	memset(&idt[0], 0, sizeof(idt));
+	idtr.address = (u32)&idt[0];
+	idtr.limit = sizeof(idtr)-1;
 }

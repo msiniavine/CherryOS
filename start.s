@@ -29,14 +29,13 @@ start:
 	mov %eax, %gs
 	mov %eax, %ss
 	ljmp $(0x8), $cs_set
-	nop
-cs_set:	
+cs_set:
+	lidt idtr
 	
 	push %eax
 	push %ebp
 
 	call kmain
-
 	cli
 
 hang:

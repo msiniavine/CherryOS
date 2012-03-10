@@ -36,8 +36,22 @@ struct igate_desc
 	
 } __attribute__((packed));
 
-#define IGATE_INT_TYPE 0xe0
-#define IGATE_TRAP_TYPE 0x78
+#define IGATE_INT_TYPE 0xe
+#define IGATE_TRAP_TYPE 0xf
+
+static void fill_idt_entry(struct igate_desc* entry, void* func, u16 selector, unsigned type)
+{
+	u32 offset = (u32)func;
+	entry->offset0 = offset & 0xffff;
+	entry->offset1 = (offset >> 16) & 0xffff;
+
+	entry->type = type;
+	entry->selector = selector; 
+
+	entry->dpl = 0; // kernel privilige level
+	entry->p = 1; // present
+	entry->reserved = 0; // reserved is always 0
+}
 
 static void fill_gdt_entry(struct desc_entry* entry, u32 base, u32 limit, unsigned type)
 {
@@ -80,10 +94,22 @@ void set_up_gdt()
 	
 }
 
+// declare the assembly isr function
+extern void asm_isr();
+
+size_t printk(const char* str);
+void isr()
+{
+	printk("!");
+}
+
 // fill in the interrupt descriptor tables
 void set_up_idt()
 {
 	memset(&idt[0], 0, sizeof(idt));
 	idtr.address = (u32)&idt[0];
-	idtr.limit = sizeof(idtr)-1;
+	idtr.limit = sizeof(idt)-1;
+
+	fill_idt_entry(&idt[0], asm_isr, 0x8, IGATE_TRAP_TYPE);
 }
+

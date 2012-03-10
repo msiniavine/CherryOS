@@ -30,6 +30,7 @@ start:
 	mov %eax, %ss
 	ljmp $(0x8), $cs_set
 cs_set:
+	call set_up_idt
 	lidt idtr
 	
 	push %eax
@@ -42,4 +43,9 @@ hang:
 	hlt
 	jmp hang
 
+	
+.global asm_isr
+asm_isr:
+	call isr		
+	iret
 	

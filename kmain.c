@@ -20,6 +20,9 @@ size_t printk(const char* str)
 
 void kmain(void* mdb, unsigned int magic)
 {
+	int i = 42;
 	printk("hello world");
+
+	i = i/0;
 }
 

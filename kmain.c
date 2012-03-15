@@ -1,28 +1,15 @@
-#include <types.h>
 #include <string.h>
-
-
-size_t printk(const char* str)
-{
-	u16* videoram = (u16*)0xb8000;
-	size_t len = strlen(str);
-	size_t i;
-	
-	for(i=0; i<len; i++)
-	{
-		u16 glyph = (0x07 << 8) | str[i];
-		videoram[i] = glyph;
-	}
-
-	return len;
-	
-}
+#include <kernel.h>
 
 void kmain(void* mdb, unsigned int magic)
 {
-	int i = 42;
-	printk("hello world");
+	printk("hello world\n");
+	printk("Hello world\n");
 
-	i = i/0;
+	printk("Number %d negative %d\n", 1337, -13565);
+	printk("Unsigned %u %u\n", 42, -42);
+	printk("Hex %x, %x pointer %p\n", magic, 0xdeadbeef, mdb);
+	printk("String %s\n", "Hello world!");
+	printk("Empty string: %s\n", "");
 }
 

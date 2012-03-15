@@ -1,5 +1,6 @@
 #include <types.h>
 #include <string.h>
+#include <console.h>
 
 // GDTR structure
 struct system_table_register
@@ -100,7 +101,7 @@ extern void asm_isr();
 size_t printk(const char* str);
 void isr()
 {
-	printk("!");
+	console_write("!", 1);
 }
 
 // fill in the interrupt descriptor tables

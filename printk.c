@@ -6,7 +6,7 @@ int itoak(char* buffer, size_t size, long n, int base, int sign)
 	char digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 	char tmp[66];
 	int i = 0;
-	int copied = 0;
+	size_t copied = 0;
 	char* str = buffer;
 
 	if(sign)

@@ -2,15 +2,14 @@
 #include <string.h>
 #include <console.h>
 
-// GDTR structure
-struct system_table_register
-{
-	u16 limit;
-	u32 address;
-} __attribute__((packed));
+// Set up the segment descriptor table
+// Try to avoid using the segmentation as much as possible and
+// instead rely on paging for memory management
+// So the code here only sets up the segments for the flat 
+// memory model.
 
-
-// entry in the descriptor table
+// Entry in the descriptor table
+// Corresponds to the spec in the Intel manual
 struct desc_entry
 {
 	u16 limit0;
@@ -26,34 +25,9 @@ struct desc_entry
 #define GDT_CODE_TYPE 10
 
 
-// entry into interrupt descriptor table
-struct igate_desc
-{
-	u16 offset0;
-	u16 selector;
-	u8 reserved;
-	u8 type: 5, dpl: 2, p: 1;
-	u16 offset1;
-	
-} __attribute__((packed));
-
-#define IGATE_INT_TYPE 0xe
-#define IGATE_TRAP_TYPE 0xf
-
-static void fill_idt_entry(struct igate_desc* entry, void* func, u16 selector, unsigned type)
-{
-	u32 offset = (u32)func;
-	entry->offset0 = offset & 0xffff;
-	entry->offset1 = (offset >> 16) & 0xffff;
-
-	entry->type = type;
-	entry->selector = selector; 
-
-	entry->dpl = 0; // kernel privilige level
-	entry->p = 1; // present
-	entry->reserved = 0; // reserved is always 0
-}
-
+// Assigns values to all the different fields in the segment descriptor
+// Lots of shifts and bit masks are needed because of the strange layout 
+// of the descriptor structure
 static void fill_gdt_entry(struct desc_entry* entry, u32 base, u32 limit, unsigned type)
 {
 	memset(entry, 0, sizeof(*entry));
@@ -77,11 +51,14 @@ static void fill_gdt_entry(struct desc_entry* entry, u32 base, u32 limit, unsign
 }
 
 struct system_table_register gdtr;
-struct system_table_register idtr;
-static struct igate_desc idt[256];
-static struct desc_entry gdt[3];
 
-// fill in the gdtr and gdt tables
+// This is the actual descriptor table
+// The first entry are all zeroes
+// and the rest are the code and data segment descriptors
+static struct desc_entry gdt[3]; 
+
+// Fill in the segment descriptors for the code and data
+// and let the cpu know where to find the descriptor table
 void set_up_gdt()
 {
 	memset(&gdt[0], 0, sizeof(gdt));
@@ -95,23 +72,4 @@ void set_up_gdt()
 	
 }
 
-// declare the assembly isr function
-extern void asm_isr();
-extern void divide_error(void);
-
-size_t printk(const char* str);
-void isr()
-{
-	console_write("!", 1);
-}
-
-// fill in the interrupt descriptor tables
-void set_up_idt()
-{
-	memset(&idt[0], 0, sizeof(idt));
-	idtr.address = (u32)&idt[0];
-	idtr.limit = sizeof(idt)-1;
-
-	fill_idt_entry(&idt[0], divide_error, 0x8, IGATE_TRAP_TYPE);
-}
 

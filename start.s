@@ -37,15 +37,8 @@ cs_set:
 	push %ebp
 
 	call kmain
+.global cpu_halt
+cpu_halt:	
 	cli
-
-hang:
 	hlt
-	jmp hang
-
-	
-.global asm_isr
-asm_isr:
-	call isr		
-	iret
-	
+	jmp cpu_halt

@@ -97,6 +97,7 @@ void set_up_gdt()
 
 // declare the assembly isr function
 extern void asm_isr();
+extern void divide_error(void);
 
 size_t printk(const char* str);
 void isr()
@@ -111,6 +112,6 @@ void set_up_idt()
 	idtr.address = (u32)&idt[0];
 	idtr.limit = sizeof(idt)-1;
 
-	fill_idt_entry(&idt[0], asm_isr, 0x8, IGATE_TRAP_TYPE);
+	fill_idt_entry(&idt[0], divide_error, 0x8, IGATE_TRAP_TYPE);
 }
 

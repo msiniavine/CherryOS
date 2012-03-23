@@ -3,6 +3,8 @@
 
 void kmain(void* mdb, unsigned int magic)
 {
+	int i = 0;
+
 	printk("hello world\n");
 	printk("Hello world\n");
 
@@ -12,5 +14,7 @@ void kmain(void* mdb, unsigned int magic)
 	printk("Zero %d\n", 0);
 	printk("String %s\n", "Hello world!");
 	printk("Empty string: %s\n", "");
+
+	i = 42/i;
 }
 

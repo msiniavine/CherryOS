@@ -22,12 +22,12 @@ int itoak(char* buffer, size_t size, long n, int base, int sign)
 		}
 	}
 
-	while(n)
+	do
 	{
 		tmp[i] = digits[(unsigned long)n%(unsigned)base];
 		n = (unsigned long)n/(unsigned) base;
 		i++;
-      	}
+      	} while(n);
 
 	if(sign)
 	{

@@ -15,6 +15,10 @@ void kmain(void* mdb, unsigned int magic)
 	printk("String %s\n", "Hello world!");
 	printk("Empty string: %s\n", "");
 
+	__asm__("mov $0, %eax\n"
+		"mov %ax, %gs\n"
+		"mov $0xdeadbeef, %eax\n"
+		"mov %gs:(%eax), %ebx\n");
 	i = 42/i;
 }
 

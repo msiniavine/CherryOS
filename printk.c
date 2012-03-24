@@ -1,15 +1,22 @@
 #include <console.h>
 #include <types.h>
+#include <string.h>
 
-int itoak(char* buffer, size_t size, long n, int base, int sign)
+#define SIGN 1
+#define PADDING 2
+#define set_padding(flags, padding) (flags | PADDING | ((int)padding << PADDING))
+#define get_padding(flags) ((char)(flags >> PADDING))
+
+int itoak(char* buffer, size_t size, long n, int base, int flags)
 {
 	char digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 	char tmp[66];
 	int i = 0;
 	size_t copied = 0;
 	char* str = buffer;
+	char sign = 0;
 
-	if(sign)
+	if(flags & SIGN)
 	{
 		if(n < 0)
 		{
@@ -20,6 +27,11 @@ int itoak(char* buffer, size_t size, long n, int base, int sign)
 		{
 			sign = 0;
 		}
+	}
+
+	if(flags & PADDING)
+	{
+		memset(tmp, get_padding(flags), 8);
 	}
 
 	do
@@ -33,6 +45,11 @@ int itoak(char* buffer, size_t size, long n, int base, int sign)
 	{
 		tmp[i] = sign;
 		i++;
+	}
+
+	if(flags & PADDING && i < 8)
+	{
+		i = 8;
 	}
 
 	while(i-- > 0)
@@ -86,7 +103,7 @@ void printk(const char* format, ...)
 				iformat += 1;
 				break;
 			case 'd':
-				ibuffer += itoak(&buffer[ibuffer], 1024-ibuffer, va_arg(args, int), 10, 1);
+				ibuffer += itoak(&buffer[ibuffer], 1024-ibuffer, va_arg(args, int), 10, SIGN);
 				iformat += 1;
 				break;
 			case 'u':
@@ -94,8 +111,11 @@ void printk(const char* format, ...)
 				iformat += 1;
 				break;
 			case 'x':
-			case 'p':
 				ibuffer += itoak(&buffer[ibuffer], 1024-ibuffer, va_arg(args, unsigned int), 16, 0);
+				iformat += 1;
+				break;
+			case 'p':
+				ibuffer += itoak(&buffer[ibuffer], 1024-ibuffer, va_arg(args, unsigned int), 16, set_padding(0, '0'));
 				iformat += 1;
 				break;
 			}

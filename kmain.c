@@ -21,8 +21,8 @@ struct mb_info
 struct mb_mmap_entry
 {
 	u32 size;
-	u64 addr;
-	u64 len;
+	u32 addr_low, addr_high;
+	u32 len_low, len_high;
 	u32 type;
 } __attribute__((packed));
 
@@ -43,13 +43,13 @@ static void print_mb_info(struct mb_info* info)
 		    (u32)mmap < info->mmap_addr+info->mmap_length;
 		    mmap = (struct mb_mmap_entry*)((u32)mmap+mmap->size + sizeof(mmap->size)))
 		{
-			printk(" size=%x, base_addr=%x%x,"
-			       " length=%x%x, type=%x\n",
-			       mmap->size, mmap->addr>>32, 
-			       mmap->addr & 0xffffffff,
-			       mmap->len >> 32,
-			       mmap->len  & 0xffffffff,
-			       mmap->type);
+			printk(" size=%x, base_addr=%p%p,"
+			       " length=%p%p, type=%x\n",
+			       mmap->size,
+			       mmap->addr_high, mmap->addr_low,
+			       mmap->len_high, mmap->len_low,
+			       mmap->type
+				);
 		}
 	}
 }

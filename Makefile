@@ -1,8 +1,8 @@
 CC=gcc
 AS=as
 LD=ld
-INCLUDES=-I./include
-CFLAGS=-c -Wall -Wextra -nostdlib -fno-builtin -nostartfiles -nodefaultlibs $(INCLUDES)
+INCLUDES=-Iinclude
+CFLAGS=-c -O1 -Wall -Wextra -nostdlib -fno-builtin -nostartfiles -nodefaultlibs $(INCLUDES)
 
 all: cherryos
 

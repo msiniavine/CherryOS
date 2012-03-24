@@ -18,6 +18,7 @@
 start:
 
 	mov $(stack + STACKSIZE), %esp
+	mov %ebx, mbd
 
 	call set_up_gdt
 

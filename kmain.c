@@ -54,21 +54,51 @@ static void print_mb_info(struct mb_info* info)
 	}
 }
 
+void panic(const char* msg)
+{
+	printk("panic - %s", msg);
+	cpu_halt();
+}
+
 void kmain()
 {
-	int* i = (int*)(2*1024*1024);
+	u32* pages;
+	int i;
 	printk("Welcome to CherryOS\n");
 	print_mb_info(mbd);
 
 	// Set up 4MB of memory
 	init_mm();
 
-	*i = 42;
-	i=(int*)(4*1024*1024);
-	*i=0xbadbeef;
+	pages = (u32*)get_free_page();
+	if(!pages)
+	{
+		panic("Could not allocate test page\n");
+	}
+	printk("Pages %p\n", pages);
+	for(i=0; i<1024; i++)
+	{
+		pages[i] = get_free_page();
+		if(!pages[i])
+			panic("Failed to test\n");
+	}
+	printk("Now attempt to free\n");
+	for(i=0; i<1024; i++)
+	{
+		free_page(pages[i]);
+	}
+	free_page((u32)pages);
 
-	i = (int*)(8*1024*1024);
-	*i = 0xbadc0ffe;
+	printk("Allocate again\n");
+
+
+	i = 0;
+	while(get_free_page())
+	{
+		i++;
+	}
+
+	printk("get free page failed after %d calls\n", i);
 
 	cpu_halt();
 }

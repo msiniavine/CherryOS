@@ -2,18 +2,6 @@
 #include <mm.h>
 #include <string.h>
 
-#define PAGE_SIZE (4*1024)
-
-#define PGD_SHIFT 22
-#define PAGE_SHIFT 12
-#define PTRS_PER_PGD 1024
-#define PTRS_PER_PTE 1024
-
-#define pgd_index(address) (((address) >> PGD_SHIFT) & (PTRS_PER_PGD - 1 ))
-#define pgd_entry(pgd, address) ((pgd)+pgd_index(address))
-
-#define pte_index(address) ((address) >> PAGE_SHIFT & (PTRS_PER_PTE - 1))
-#define pfn(address) ((address) >> PAGE_SHIFT)
 
 static void set_up_ptes(struct pte* page_table, u32 start, u32 end)
 {
@@ -73,4 +61,6 @@ void init_mm()
 	set_up_ptes(pg1, 4*1024*1024, 8*1024*1024);
 	set_pgd(pgd);
 	enable_paging();
+
+	init_memory();
 }

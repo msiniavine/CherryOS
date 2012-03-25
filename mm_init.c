@@ -44,31 +44,33 @@ static void enable_paging(void)
 		"mov %0, %%cr0\n" :: "r"(cr0));
 }
 
-void init_mm(u32 start, u32 end)
+// creates a pde using a give physical address pointing to a page table
+static void make_pde(struct pde* pde, u32 address)
 {
-	struct pde* pgd;
-	struct pde* pde;
-	struct pte* page_table;
-	int num_ptes;
-	int num_page_tables;
-	printk("Setting up identity mapping %x-%x\n", start, end);
-
-	pgd = (struct pde*)(end - PAGE_SIZE);
-	memset(pgd, 0, PAGE_SIZE);
-
-	num_ptes = (end-start)/PAGE_SIZE;
-	num_page_tables = num_ptes * sizeof(struct pte) / PAGE_SIZE;
-
-	page_table = (struct pte*)(end - 2*PAGE_SIZE);
-	memset(page_table, 0, PAGE_SIZE);
-	pde = pgd_entry(pgd, (u32)page_table);
-
 	pde->p=1;
 	pde->rw=1;
-	pde->pwt=1;
-	pde->addr = pfn((u32)page_table);
+	pde->us=0;
+	pde->pwt = 0;
+	pde->pcd=0;
+	pde->a=0;
+	pde->reserved=0;
+	pde->addr = pfn(address);
+}
 
-	set_up_ptes(page_table, start, end);
+struct pde pgd[1024] __attribute__((aligned(PAGE_SIZE)));
+struct pte pg0[1024] __attribute__((aligned(PAGE_SIZE)));
+struct pte pg1[1024] __attribute__((aligned(PAGE_SIZE)));
+
+void init_mm()
+{
+	printk("Setting up identity mapping %p-%p\n", 0, 8*1024*1024);
+
+	memset(pgd, 0, PAGE_SIZE);
+	make_pde(pgd_entry(pgd, 0), (u32)pg0);
+	make_pde(pgd_entry(pgd, 4*1024*1024), (u32)pg1);
+
+	set_up_ptes(pg0, 0, 4*1024*1024);
+	set_up_ptes(pg1, 4*1024*1024, 8*1024*1024);
 	set_pgd(pgd);
 	enable_paging();
 }

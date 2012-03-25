@@ -30,7 +30,7 @@ struct pde
 } __attribute__((packed));
 
 // Initializes memory management
-// sets up identity paging for address range [start:end)
-void init_mm(u32 start, u32 end);
+// sets up identity paging for the first 8MB
+void init_mm();
 
 #endif

@@ -56,11 +56,19 @@ static void print_mb_info(struct mb_info* info)
 
 void kmain()
 {
+	int* i = (int*)(2*1024*1024);
 	printk("Welcome to CherryOS\n");
 	print_mb_info(mbd);
 
 	// Set up 4MB of memory
-	init_mm(0, 4*1024*1024);
+	init_mm();
+
+	*i = 42;
+	i=(int*)(4*1024*1024);
+	*i=0xbadbeef;
+
+	i = (int*)(8*1024*1024);
+	*i = 0xbadc0ffe;
 
 	cpu_halt();
 }

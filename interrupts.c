@@ -65,6 +65,40 @@ extern void isr17(void);
 extern void isr18(void);
 extern void isr19(void);
 
+// irq declarations
+extern void irq0(void);
+extern void irq1(void);
+extern void irq2(void);
+extern void irq3(void);
+extern void irq4(void);
+extern void irq5(void);
+extern void irq6(void);
+extern void irq7(void);
+extern void irq8(void);
+extern void irq9(void);
+extern void irq10(void);
+extern void irq11(void);
+extern void irq12(void);
+extern void irq13(void);
+extern void irq14(void);
+extern void irq15(void);
+
+
+static void init_pic()
+{
+	// Remap the irq table.
+	outb(0x20, 0x11);
+	outb(0xA0, 0x11);
+	outb(0x21, 0x20);
+	outb(0xA1, 0x28);
+	outb(0x21, 0x04);
+	outb(0xA1, 0x02);
+	outb(0x21, 0x01);
+	outb(0xA1, 0x01);
+	outb(0x21, 0x0);
+	outb(0xA1, 0x0);
+}
+
 // fill in the interrupt descriptor tables with the functions that will handle in interrupts
 // the actual functions are defined in entry.s
 // but all those functions just end up calling isr_handler below
@@ -95,6 +129,25 @@ void set_up_idt()
 	fill_idt_entry(&idt[17], isr17, ISEL, IGATE_TRAP_TYPE);
 	fill_idt_entry(&idt[18], isr18, ISEL, IGATE_TRAP_TYPE);
 	fill_idt_entry(&idt[19], isr19, ISEL, IGATE_TRAP_TYPE);
+
+	fill_idt_entry(&idt[32], irq0, ISEL, IGATE_INT_TYPE);
+	fill_idt_entry(&idt[33], irq1, ISEL, IGATE_INT_TYPE);
+	fill_idt_entry(&idt[34], irq2, ISEL, IGATE_INT_TYPE);
+	fill_idt_entry(&idt[35], irq3, ISEL, IGATE_INT_TYPE);
+	fill_idt_entry(&idt[36], irq4, ISEL, IGATE_INT_TYPE);
+	fill_idt_entry(&idt[37], irq5, ISEL, IGATE_INT_TYPE);
+	fill_idt_entry(&idt[38], irq6, ISEL, IGATE_INT_TYPE);
+	fill_idt_entry(&idt[39], irq7, ISEL, IGATE_INT_TYPE);
+	fill_idt_entry(&idt[40], irq8, ISEL, IGATE_INT_TYPE);
+	fill_idt_entry(&idt[41], irq9, ISEL, IGATE_INT_TYPE);
+	fill_idt_entry(&idt[42], irq10, ISEL, IGATE_INT_TYPE);
+	fill_idt_entry(&idt[43], irq11, ISEL, IGATE_INT_TYPE);
+	fill_idt_entry(&idt[44], irq12, ISEL, IGATE_INT_TYPE);
+	fill_idt_entry(&idt[45], irq13, ISEL, IGATE_INT_TYPE);
+	fill_idt_entry(&idt[46], irq14, ISEL, IGATE_INT_TYPE);
+	fill_idt_entry(&idt[47], irq15, ISEL, IGATE_INT_TYPE);
+
+	init_pic();
 }
 
 
@@ -116,3 +169,29 @@ void isr_handler(struct regs regs)
 	print_error(&regs);
 	cpu_halt();
 }
+
+int tick = 0;
+void irq_handler(struct regs regs)
+{
+	if(regs.int_no >= 40)
+	{
+		outb(0xa0, 0x20);
+	}
+	outb(0x20, 0x20);
+
+	if(tick % 100 == 0)
+		printk("Tick: %d\n", tick/100);
+	tick++;
+}
+
+void init_timer()
+{
+	u32 divisor = 1193180/100;
+	u8 l = divisor & 0xff;
+	u8 h = (divisor >> 8) & 0xff;
+	outb(0x43, 0x36);
+	outb(0x40, l);
+	outb(0x40, h);
+}
+
+

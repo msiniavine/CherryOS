@@ -60,6 +60,7 @@ void panic(const char* msg)
 	cpu_halt();
 }
 
+void init_timer(void);
 void kmain()
 {
 	u32* pages;
@@ -99,6 +100,11 @@ void kmain()
 	}
 
 	printk("get free page failed after %d calls\n", i);
+
+	init_timer();
+
+	sti();
+	for(;;) cpu_relax();
 
 	cpu_halt();
 }

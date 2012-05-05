@@ -1,6 +1,7 @@
 #include <kernel.h>
 #include <string.h>
 #include <registers.h>
+#include <interrupts.h>
 
 // Interrupt descriptor entry
 // As defined in the Intel manual
@@ -99,6 +100,13 @@ static void init_pic()
 	outb(0xA1, 0x0);
 }
 
+static handler_func interrupt_handlers[50];
+void register_interrupt_handler(handler_func handler, int num)
+{
+	interrupt_handlers[num] = handler;
+}
+
+
 // fill in the interrupt descriptor tables with the functions that will handle in interrupts
 // the actual functions are defined in entry.s
 // but all those functions just end up calling isr_handler below
@@ -148,6 +156,8 @@ void set_up_idt()
 	fill_idt_entry(&idt[47], irq15, ISEL, IGATE_INT_TYPE);
 
 	init_pic();
+
+	memset(interrupt_handlers, 0, sizeof(interrupt_handlers));
 }
 
 
@@ -170,28 +180,23 @@ void isr_handler(struct regs regs)
 	cpu_halt();
 }
 
-int tick = 0;
-void irq_handler(struct regs regs)
+static void acknowledge_interrupt(struct regs* regs)
 {
-	if(regs.int_no >= 40)
+	if(regs->int_no >= 40)
 	{
 		outb(0xa0, 0x20);
 	}
-	outb(0x20, 0x20);
-
-	if(tick % 100 == 0)
-		printk("Tick: %d\n", tick/100);
-	tick++;
+ 	outb(0x20, 0x20);
 }
 
-void init_timer()
+
+
+void irq_handler(struct regs regs)
 {
-	u32 divisor = 1193180/100;
-	u8 l = divisor & 0xff;
-	u8 h = (divisor >> 8) & 0xff;
-	outb(0x43, 0x36);
-	outb(0x40, l);
-	outb(0x40, h);
-}
 
+	if(interrupt_handlers[regs.int_no])
+		interrupt_handlers[regs.int_no]();
+
+	acknowledge_interrupt(&regs);
+}
 

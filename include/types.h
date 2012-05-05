@@ -10,7 +10,7 @@ typedef unsigned int   u32;
 typedef unsigned long long u64;
 typedef unsigned char u8;
 
-// Definietions for functions to handle variable number of arguments
+// Definitions for functions to handle variable number of arguments
 typedef __builtin_va_list va_list;
 #define va_start(a,b) __builtin_va_start((a),(b))
 #define va_arg(a,b) __builtin_va_arg((a), b)

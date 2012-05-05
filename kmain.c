@@ -1,6 +1,7 @@
 #include <string.h>
 #include <kernel.h>
 #include <mm.h>
+#include <timer.h>
 
 // Multiboot information structure
 struct mb_info
@@ -60,7 +61,6 @@ void panic(const char* msg)
 	cpu_halt();
 }
 
-void init_timer(void);
 void kmain()
 {
 	u32* pages;
@@ -89,17 +89,6 @@ void kmain()
 		free_page(pages[i]);
 	}
 	free_page((u32)pages);
-
-	printk("Allocate again\n");
-
-
-	i = 0;
-	while(get_free_page())
-	{
-		i++;
-	}
-
-	printk("get free page failed after %d calls\n", i);
 
 	init_timer();
 

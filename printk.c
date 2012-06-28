@@ -1,6 +1,7 @@
 #include <console.h>
 #include <types.h>
 #include <string.h>
+#include <serial.h>
 
 #define SIGN 1
 #define PADDING 2
@@ -123,6 +124,7 @@ void printk(const char* format, ...)
 	}
 	buffer[ibuffer] = '\0';
 	console_write(buffer, ibuffer);
+	serial_write(buffer, ibuffer);
 	va_end(args);
 }
 

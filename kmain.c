@@ -2,6 +2,7 @@
 #include <kernel.h>
 #include <mm.h>
 #include <timer.h>
+#include <serial.h>
 
 // Multiboot information structure
 struct mb_info
@@ -91,8 +92,11 @@ void kmain()
 	free_page((u32)pages);
 
 	init_timer();
+	init_serial();
 
 	sti();
+
+	serial_write("hello world serial", strlen("hello world serial"));
 	for(;;) cpu_relax();
 
 	cpu_halt();

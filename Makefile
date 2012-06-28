@@ -4,7 +4,7 @@ LD=ld
 INCLUDES=-Iinclude
 CFLAGS=-O1 -Wall -Wextra -nostdlib -fno-builtin -nostartfiles -nodefaultlibs $(INCLUDES)
 
-OBJS=start.o kmain.o gdt.o string.o console.o printk.o entry.o interrupts.o mm_init.o memory.o timer.o
+OBJS=start.o kmain.o gdt.o string.o console.o printk.o entry.o interrupts.o mm_init.o memory.o timer.o serial.o
 
 all: cherryos
 

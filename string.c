@@ -19,3 +19,16 @@ void* memset(void* ptr, int value, size_t num)
 
 	return ptr;
 }
+
+void* memcpy(void* dest, void* src, size_t num)
+{
+	char* d = dest;
+	char* s = src;
+	size_t i;
+	for(i = 0; i<num; i++)
+	{
+		d[i] = s[i];
+	}
+
+	return  dest;
+}
